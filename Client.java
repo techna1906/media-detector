@@ -37,10 +37,14 @@ class Client
     {
     	try
     	{
-    		Client c=new Client("127.0.0.1", 9090);
-		while(true)
+	    String ip=args[0];
+	    int port=Integer.parseInt(args[1]);
+	    Client c=new Client(ip,port);
+	    while(true)
 		c.service();
     	}
-    	catch(Exception ex){}
+    	catch(Exception ex){
+	    System.out.println("Usage: java Client <ip> <port>");
+	}
     }
 }

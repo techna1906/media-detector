@@ -6,10 +6,11 @@ class Server implements Runnable
     ServerSocket port;
     Thread t;
     boolean flag;
-
-    Server() throws Exception
+    String filename;
+    Server(int port_no) throws Exception
     {
-	port=new ServerSocket(9090);
+    	filename=" ";
+	port=new ServerSocket(port_no);
 	flag=true;
 	t=new Thread(this);
 	t.start();
@@ -22,7 +23,7 @@ class Server implements Runnable
 	    try
 	    {
 		Socket s=port.accept();
-		new Processor(s);
+		new Processor(s,filename);
 	    }
 	    catch(Exception ex)
 		{}
@@ -33,10 +34,13 @@ class Server implements Runnable
     {
 	try
 	{
-	    Server svr=new Server();
+	    int port_no=Integer.parseInt(args[0]);
+	    Server svr=new Server(port_no);
 	}
 	catch(Exception ex)
-	    {}
+	    {
+	    	System.out.println("Usage: java Server <port no>");
+	    }
     }
 }
 
@@ -46,9 +50,11 @@ class Processor extends Thread
     static int length;
     static String contents[]=new String[1024];
     static Socket client;
-    Processor(Socket s)
+    static String filename;
+    Processor(Socket s, String name)
     {
 	client=s;
+	filename=name;
 	start();
     }
     static int getContents(File f)
@@ -63,9 +69,9 @@ class Processor extends Thread
 	    System.out.println(" "+contents[i]);
 	System.out.println("--------------------------------");
     }
-    static void writeFile(String contents[],File filename) throws Exception
+    static void writeFile(String contents[],File name) throws Exception
     {
-	FileWriter writer=new FileWriter(filename);
+	FileWriter writer=new FileWriter(name);
 	writer.write("----------------------\n");
 	String time="Time: "+System.currentTimeMillis()+"\n";
 	writer.write(time);
@@ -76,9 +82,7 @@ class Processor extends Thread
 	}
 	writer.flush();
 	writer.close();
-	//File f=new File();
-	//f=filename;
-	FileInputStream fis=new FileInputStream(filename);
+	FileInputStream fis=new FileInputStream(name);
 	OutputStream os=client.getOutputStream();
 	DataOutputStream dos=new DataOutputStream(os);
 	int x;
@@ -89,7 +93,7 @@ class Processor extends Thread
 	else
 	    message="Everything seems normal";
 	dos.writeUTF(message);
-	dos.writeLong(filename.length());
+	dos.writeLong(name.length());
 	while((x=fis.read(arr))!=-1)
 	    dos.write(arr,0,x);
 	dos.flush();
@@ -99,46 +103,46 @@ class Processor extends Thread
     public void run()
     {
 	try{
-	    String filename="/run/media/asharma";
-	    String logfile="log.txt";
-	    File f=new File(filename);
+	    String filename2="/run/media/asharma";
+	    String logfile="hello.txt";
+	    File f=new File(filename2);
 	    File file2=new File(logfile);
 	    if(file2.exists())
-		file2.delete();
+		 file2.delete();
 	    file2=new File(logfile);
-	   	flag1=true;
-	flag2=true;
-	String directory=f.getName();
-	contents=f.list();
-	length=contents.length;
+	    flag1=true;
+	    flag2=true;
+	    String directory=f.getName();
+	    contents=f.list();
+	    length=contents.length;
 	    while(flag1)
 	    {
-	    if(f.exists())
-	    {
-		if(f.isFile())
-	        {
-		    System.out.println(f.getAbsolutePath()+" is a file.");
-		}
-		else if(f.isDirectory())
-		{
-		    int new_length=getContents(f);
-		    if(new_length!=length)
-		    {
-			flag2=false;
-			length=new_length;
-		    }
-		    if(!flag2)
-		    {			
-     			//printContents();
-			writeFile(contents,file2);
-			flag2=true;
-		    }
-		}		    
-	    }
-	    else
-	    {
-		System.out.println(f.getAbsolutePath()+" does not exist.");
-	    }
+		 if(f.exists())
+		 {
+		     if(f.isFile())
+		     {
+			 System.out.println(f.getAbsolutePath()+" is a file.");
+		     }
+		     else if(f.isDirectory())
+		     {
+			 int new_length=getContents(f);
+			 if(new_length!=length)
+			 {
+			     flag2=false;
+			     length=new_length;
+			 }
+			 if(!flag2)
+			 {			
+				 //printContents();
+			     writeFile(contents,file2);
+			     flag2=true;
+			 }
+		     }		    
+		 }
+		 else
+		 {
+		     System.out.println(f.getAbsolutePath()+" does not exist.");
+		 }
 	    }
 	   }
 	catch(Exception ex)
