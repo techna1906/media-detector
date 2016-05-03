@@ -104,7 +104,7 @@ class Processor extends Thread
     {
 	try{
 	    String filename2="/run/media/asharma";
-	    String logfile="hello.txt";
+	    String logfile="log.txt";
 	    File f=new File(filename2);
 	    File file2=new File(logfile);
 	    if(file2.exists())
